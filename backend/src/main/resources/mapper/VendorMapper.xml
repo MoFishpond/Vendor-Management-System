@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hygym.vendor.mapper.VendorMapper">
+    <select id="selectExample" resultType="com.hygym.vendor.entity.Area">
+        select * from area
+    </select>
+    <select id="selectShopDetailById" resultType="com.hygym.vendor.entity.ShopDetail">
+        select * from shop
+        where shop_id in
+        <foreach collection="shopId" item="id" open="(" separator="," close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+    <select id="selectProductDetailById" resultType="com.hygym.vendor.entity.ProductDetail">
+        select * from product
+        where product_id in
+        <foreach collection="productId" item="id" open="(" separator="," close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+    <select id="selectOrderDetailById" resultType="com.hygym.vendor.entity.OrderDetail">
+        select * from order
+        where order_id in
+        <foreach collection="orderId" item="id" open="(" separator="," close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+    <select id="selectAreaDetailById" resultType="com.hygym.vendor.entity.AreaDetail">
+        select * from area
+        where area_id in
+        <foreach collection="areaId" item="id" open="(" separator="," close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+    <update id="updateProductDetail" parameterType="com.hygym.vendor.entity.ProductDetail">
+        update product set name = #{detail.name, jdbcType=VARCHAR}, price = #{detail.price, jdbcType=DECIMAL}
+        , introduction = #{detail.introduction, jdbcType=VARCHAR}, countries = #{detail.countries, jdbcType=VARCHAR}
+        , number = #{detail.number, jdbcType=BIGINT}
+        where product_id = #{detail.productId, jdbcType=BIGINT}
+    </update>
+    <delete id="deleteProductDetail" parameterType="java.lang.Long">
+        delete from product where product_id = #{productId, jdbcType=BIGINT}
+    </delete>
+    <update id="updateShopDetail" parameterType="com.hygym.vendor.entity.ShopDetail">
+        update shop set name = #{detail.name, jdbcType=VARCHAR}, product_ids = #{detail.productIds, jdbcType=VARCHAR}
+        , area_group_ids = #{detail.areaGroupIds, jdbcType=VARCHAR}, order_ids = #{detail.orderIds, jdbcType=VARCHAR}
+        where shop_id = #{detail.shopId, jdbcType=BIGINT}
+    </update>
+    <insert id="insertProductDetail" parameterType="com.hygym.vendor.entity.ProductDetail">
+        insert into product values (#{detail.productId, jdbcType=BIGINT}, #{detail.name, jdbcType=VARCHAR}, #{detail.price, jdbcType=DECIMAL},
+                                    #{detail.introduction, jdbcType=VARCHAR}, #{detail.photo, jdbcType=BLOB}, #{detail.countries, jdbcType=VARCHAR},
+                                    #{detail.salesVolume, jdbcType=BIGINT}, #{detail.number, jdbcType=BIGINT})
+    </insert>
+    <select id="selectProductDetailByFilter" parameterType="com.hygym.vendor.entity.ProductFilter"
+            resultType="com.hygym.vendor.entity.ProductDetail">
+        select * from product
+        <where>
+            <if test="filter.productId != null">
+                and productId = #{filter.productId, jdbcType=BIGINT}
+            </if>
+            <if test="filter.name != null">
+                and name = #{filter.name, jdbcType=VARCHAR}
+            </if>
+            <if test="filter.keyword != null">
+                and introduction like concat("%",#{filter.keyword, jdbcType=VARCHAR},"%")
+            </if>
+            <if test="filter.stock != null">
+                <if test='filter.stock.operator == "ge"'>
+                    and price > #{filter.stock.value, jdbcType=DECIMAL}
+                </if>
+                <if test='filter.stock.operator == "le"'>
+                    and price &lt; #{filter.stock.value, jdbcType=DECIMAL}
+                </if>
+                <if test='filter.stock.operator == "eq"'>
+                    and price = #{filter.stock.value, jdbcType=DECIMAL}
+                </if>
+            </if>
+        </where>
+    </select>
+    <insert id="insertOrderDetail" parameterType="com.hygym.vendor.entity.OrderDetail">
+        insert into order values (#{detail.orderId, jdbcType=BIGINT}, CURRENT_TIMESTAMP, #{detail.customerId, jdbcType=BIGINT},
+                                  #{detail.country, jdbcType=VARCHAR}, #{detail.products, jdbcType=VARCHAR}, #{detail.amount, jdbcType=DECIMAL})
+    </insert>
+    <select id="selectOrderDetailByFilter" parameterType="com.hygym.vendor.entity.OrderFilter" resultType="com.hygym.vendor.entity.OrderDetail">
+        select * from order
+        <where>
+            <if test="filter.customerId != null">
+                and customer_id = #{filter.customerId, jdbcType=BIGINT}
+            </if>
+            <if test="filter.productId != null">
+                and products like concat("%",#{filter.productId, jdbcType=BIGINT},"%")
+            </if>
+            <if test="filter.money != null">
+                and amount = #{filter.money, jdbcType=DECIMAL}
+            </if>
+        </where>
+    </select>
+    <insert id="insertAreaDetail" parameterType="com.hygym.vendor.entity.AreaDetail">
+        insert into area values (#{detail.areaId, jdbcType=BIGINT}, #{detail.name, jdbcType=VARCHAR},
+                                 #{detail.description, jdbcType=VARCHAR}, #{detail.countries, jdbcType=VARCHAR})
+    </insert>
+    <update id="updateAreaDetail" parameterType="com.hygym.vendor.entity.AreaDetail">
+        update area set name = #{detail.name, jdbcType=VARCHAR},
+                        description = #{detail.description, jdbcType=VARCHAR}, countries = #{detail.countries, jdbcType=VARCHAR}
+                        where area_id = #{detail.areaId, jdbcType=BIGINT}
+    </update>
+    <delete id="deleteAreaDetail" parameterType="java.lang.Long">
+        delete from area where area_id = #{areaId, jdbcType=BIGINT}
+    </delete>
+</mapper>
