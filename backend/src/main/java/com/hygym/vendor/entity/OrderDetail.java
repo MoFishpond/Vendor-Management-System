@@ -2,9 +2,9 @@ package com.hygym.vendor.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author Yiming Gong
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class OrderDetail {
     private Long orderId;
-    private DateTime date;
+    private Date date;
     private Long customerId;
     private String country;
     private String products;

@@ -7,6 +7,7 @@ import com.hygym.vendor.entity.OrderFilter;
 import com.hygym.vendor.entity.ProductDetail;
 import com.hygym.vendor.entity.ProductFilter;
 import com.hygym.vendor.entity.ShopDetail;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -18,31 +19,31 @@ public interface VendorMapper {
 
     List<Area> selectExample();
 
-    List<ShopDetail> selectShopDetailById(List<Long> shopId);
+    List<ShopDetail> selectShopDetailById(@Param("shopId") List<Long> shopId);
 
-    List<ProductDetail> selectProductDetailById(List<Long> productId);
+    List<ProductDetail> selectProductDetailById(@Param("productId") List<Long> productId);
 
-    List<OrderDetail> selectOrderDetailById(List<Long> orderId);
+    List<OrderDetail> selectOrderDetailById(@Param("orderId") List<Long> orderId);
 
-    List<AreaDetail> selectAreaDetailById(List<Long> areaId);
+    List<AreaDetail> selectAreaDetailById(@Param("areaId") List<Long> areaId);
 
-    int updateProductDetail(ProductDetail detail);
+    int updateProductDetail(@Param("detail") ProductDetail detail);
 
-    int deleteProductDetail(Long productId);
+    int deleteProductDetail(@Param("productId") Long productId);
 
-    int updateShopDetail(ShopDetail detail);
+    int updateShopDetail(@Param("detail") ShopDetail detail);
 
-    int insertProductDetail(ProductDetail detail);
+    int insertProductDetail(@Param("detail")ProductDetail detail);
 
-    List<ProductDetail> selectProductDetailByFilter(ProductFilter filter);
+    List<ProductDetail> selectProductDetailByFilter(@Param("filter")ProductFilter filter);
 
-    int insertOrderDetail(OrderDetail detail);
+    int insertOrderDetail(@Param("detail")OrderDetail detail);
 
-    List<OrderDetail> selectOrderDetailByFilter(OrderFilter filter);
+    List<OrderDetail> selectOrderDetailByFilter(@Param("filter")OrderFilter filter);
 
-    int insertAreaDetail(AreaDetail detail);
+    int insertAreaDetail(@Param("detail")AreaDetail detail);
 
-    int updateAreaDetail(AreaDetail detail);
+    int updateAreaDetail(@Param("detail")AreaDetail detail);
 
-    int deleteAreaDetail(Long areaId);
+    int deleteAreaDetail(@Param("areaId")Long areaId);
 }

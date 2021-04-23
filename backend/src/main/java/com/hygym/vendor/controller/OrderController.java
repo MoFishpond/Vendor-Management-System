@@ -11,15 +11,17 @@ import com.hygym.vendor.entity.ShopDetail;
 import com.hygym.vendor.mapper.VendorMapper;
 import com.hygym.vendor.vo.Detail;
 import com.hygym.vendor.vo.Order;
+import com.hygym.vendor.vo.OrderDTO;
 import com.hygym.vendor.vo.ProductArray;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,8 @@ public class OrderController {
 
     @Autowired
     private VendorMapper vendorMapper;
+
+    private static long o = 10L;
 
     @GetMapping("/rest/i/vms/order/getALL")
     public ProductArray<Order> getAllOrder(@RequestParam("shopId") Long shopId) {
@@ -55,7 +59,9 @@ public class OrderController {
     }
 
     @PostMapping("/rest/i/vms/order/add")
-    public ProductArray<Order> addOrder(Order order, Long shopId) {
+    public ProductArray<Order> addOrder(@RequestBody OrderDTO dto) {
+        Order order = new Order(o++, dto.getCustomerId(), dto.getArea(), dto.getDetails(), dto.getMoney());
+        Long shopId = dto.getShopId();
         ShopDetail shopDetail = vendorMapper.selectShopDetailById(Lists.newArrayList(shopId)).get(0);
         List<Long> orderIds = Arrays.stream(shopDetail.getOrderIds().split(","))
                 .map(Long::parseUnsignedLong).collect(Collectors.toList());
@@ -65,7 +71,7 @@ public class OrderController {
             buffer.append(s.getProductId()).append(":").append(s.getAmount()).append(";");
         });
         buffer.deleteCharAt(buffer.length()-1);
-        OrderDetail orderDetail = new OrderDetail(order.getOrderId(), new DateTime(), order.getCustomerId(), order.getArea(),
+        OrderDetail orderDetail = new OrderDetail(order.getOrderId(), new Date(), order.getCustomerId(), order.getArea(),
                 buffer.toString(), order.getMoney());
         vendorMapper.insertOrderDetail(orderDetail);
         orderIds.add(orderDetail.getOrderId());
@@ -122,7 +128,7 @@ public class OrderController {
     }
 
     @PostMapping("/rest/i/vms/area/add")
-    public ProductArray<AreaPackage> addArea(Area area) {
+    public ProductArray<AreaPackage> addArea(@RequestBody Area area) {
         ShopDetail shopDetail = vendorMapper.selectShopDetailById(Lists.newArrayList(area.getShopId())).get(0);
         List<Long> areas = Arrays.asList(shopDetail.getAreaGroupIds().split(","))
                 .stream().map(Long::parseUnsignedLong).collect(Collectors.toList());
@@ -145,7 +151,7 @@ public class OrderController {
     }
 
     @PostMapping("/rest/i/vms/area/edit")
-    public ProductArray<AreaPackage> editArea(Area area) {
+    public ProductArray<AreaPackage> editArea(@RequestBody Area area) {
         AreaDetail areaDetail = new AreaDetail(area.getAreaGroupId(), area.getName(), area.getDesc(), Joiner.on(",").join(area.getArea()));
         vendorMapper.updateAreaDetail(areaDetail);
         ShopDetail shopDetail = vendorMapper.selectShopDetailById(Lists.newArrayList(area.getShopId())).get(0);
@@ -163,7 +169,7 @@ public class OrderController {
     }
 
     @PostMapping("/rest/i/vms/area/delete")
-    public ProductArray<AreaPackage> deleteArea(Area area) {
+    public ProductArray<AreaPackage> deleteArea(@RequestBody Area area) {
         ShopDetail shopDetail = vendorMapper.selectShopDetailById(Lists.newArrayList(area.getShopId())).get(0);
         List<Long> areas = Arrays.asList(shopDetail.getAreaGroupIds().split(","))
                 .stream().map(Long::parseUnsignedLong).collect(Collectors.toList());

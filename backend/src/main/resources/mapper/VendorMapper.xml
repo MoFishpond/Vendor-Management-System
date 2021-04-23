@@ -19,7 +19,7 @@
         </foreach>
     </select>
     <select id="selectOrderDetailById" resultType="com.hygym.vendor.entity.OrderDetail">
-        select * from order
+        select * from `order`
         where order_id in
         <foreach collection="orderId" item="id" open="(" separator="," close=")">
             #{id, jdbcType=BIGINT}
@@ -78,11 +78,11 @@
         </where>
     </select>
     <insert id="insertOrderDetail" parameterType="com.hygym.vendor.entity.OrderDetail">
-        insert into order values (#{detail.orderId, jdbcType=BIGINT}, CURRENT_TIMESTAMP, #{detail.customerId, jdbcType=BIGINT},
+        insert into `order` values (#{detail.orderId, jdbcType=BIGINT}, CURRENT_TIMESTAMP, #{detail.customerId, jdbcType=BIGINT},
                                   #{detail.country, jdbcType=VARCHAR}, #{detail.products, jdbcType=VARCHAR}, #{detail.amount, jdbcType=DECIMAL})
     </insert>
     <select id="selectOrderDetailByFilter" parameterType="com.hygym.vendor.entity.OrderFilter" resultType="com.hygym.vendor.entity.OrderDetail">
-        select * from order
+        select * from `order`
         <where>
             <if test="filter.customerId != null">
                 and customer_id = #{filter.customerId, jdbcType=BIGINT}

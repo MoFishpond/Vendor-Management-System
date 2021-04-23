@@ -10,6 +10,7 @@ import com.hygym.vendor.entity.ShopDetail;
 import com.hygym.vendor.mapper.VendorMapper;
 import com.hygym.vendor.vo.Product;
 import com.hygym.vendor.vo.ProductArray;
+import com.hygym.vendor.vo.ProductDTO;
 import com.hygym.vendor.vo.ShopSumVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
  */
 @RestController
 public class MainController {
+
+    private static long p = 15;
 
     @Autowired
     private VendorMapper vendorMapper;
@@ -81,12 +85,13 @@ public class MainController {
 //    @GetMapping("/rest/i/vms/product/getSalesInfo")
 //    @ResponseBody
     @PostMapping("/rest/i/vms/product/edit")
-    public ProductArray<Product> editProduct(Product product, Long ShopId) {
-        ProductDetail productDetail =
-                new ProductDetail(product.getProductId(), product.getName()
+    public ProductArray<Product> editProduct(@RequestBody ProductDTO dto) {
+        Product product = new Product(dto.getProductId(), dto.getName(), dto.getPrice(), dto.getIntroduction(), dto.getImage(), dto.getArea(), dto.getStock());
+        Long shopId = dto.getShopId();
+        ProductDetail productDetail = new ProductDetail(product.getProductId(), product.getName()
                         , product.getPrice(), product.getIntroduction(), null, Joiner.on(",").join(product.getArea()), null, product.getStock());
         vendorMapper.updateProductDetail(productDetail);
-        ShopDetail shopDetail = vendorMapper.selectShopDetailById(Lists.newArrayList(ShopId)).get(0);
+        ShopDetail shopDetail = vendorMapper.selectShopDetailById(Lists.newArrayList(shopId)).get(0);
         List<ProductDetail> productDetails = vendorMapper.selectProductDetailById(Arrays.stream(shopDetail.getProductIds()
                 .split(",")).map(Long::parseUnsignedLong).collect(Collectors.toList()));
         List<Product> products = productDetails.stream().map(s -> new Product(s.getProductId(), s.getName(), s.getPrice()
@@ -106,9 +111,11 @@ public class MainController {
     }
 
     @PostMapping("/rest/i/vms/product/delete")
-    public ProductArray<Product> deleteProduct(Long shopId, Long productId) {
+    public ProductArray<Product> deleteProduct(@RequestBody ProductDTO dto) {
+        Long shopId = dto.getShopId();
+        Long productId = dto.getProductId();
         ShopDetail shopDetail = vendorMapper.selectShopDetailById(Lists.newArrayList(shopId)).get(0);
-        List<String> oldPr = Arrays.asList(shopDetail.getProductIds().split(","));
+        List<String> oldPr = new ArrayList<>(Arrays.asList(shopDetail.getProductIds().split(",")));
         oldPr.remove(productId.toString());
         shopDetail.setProductIds(Joiner.on(",").join(oldPr));
         vendorMapper.deleteProductDetail(productId);
@@ -133,12 +140,14 @@ public class MainController {
     }
 
     @PostMapping("/rest/i/vms/product/add")
-    public ProductArray<Product> addProduct(Product product, Long shopId) {
+    public ProductArray<Product> addProduct(@RequestBody ProductDTO dto) {
+        Product product = new Product(p++, dto.getName(), dto.getPrice(), dto.getIntroduction(), dto.getImage(), dto.getArea(), dto.getStock());
+        Long shopId = dto.getShopId();
         ProductDetail detail = new ProductDetail(product.getProductId(), product.getName(), product.getPrice(), product.getIntroduction(),
-                product.getImage(), Joiner.on(",").join(product.getArea()), 0L, product.getStock());
+                null, Joiner.on(",").join(product.getArea()), 0L, product.getStock());
         vendorMapper.insertProductDetail(detail);
         ShopDetail shopDetail = vendorMapper.selectShopDetailById(Lists.newArrayList(shopId)).get(0);
-        List<String> oldPr = Arrays.asList(shopDetail.getProductIds().split(","));
+        List<String> oldPr = new ArrayList<>(Arrays.asList(shopDetail.getProductIds().split(",")));
         List<ProductDetail> productDetails = vendorMapper
                 .selectProductDetailById(oldPr.stream().map(Long::parseUnsignedLong).collect(Collectors.toList()));
         productDetails.add(detail);
